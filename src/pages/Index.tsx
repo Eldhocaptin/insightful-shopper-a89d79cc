@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Loader2, ArrowRight, Truck, RotateCcw, Shield, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import heroProductsImg from '@/assets/hero-products.jpg';
 
 const Index = () => {
   const { data: products, isLoading, error } = useActiveProducts();
@@ -91,14 +92,12 @@ const Index = () => {
             {/* Right Visual */}
             <div className="relative hidden lg:block">
               <div className="absolute -inset-4 bg-gradient-to-tr from-primary/20 via-transparent to-accent/20 rounded-3xl blur-3xl" />
-              <div className="relative aspect-square rounded-3xl bg-gradient-to-br from-muted to-muted/50 border border-border/50 p-8 flex items-center justify-center">
-                <div className="text-center space-y-4">
-                  <div className="w-32 h-32 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
-                    <span className="text-6xl">📦</span>
-                  </div>
-                  <p className="text-2xl font-bold">Premium Quality</p>
-                  <p className="text-muted-foreground">Curated with care</p>
-                </div>
+              <div className="relative aspect-square rounded-3xl overflow-hidden border border-border/50 shadow-2xl">
+                <img 
+                  src={heroProductsImg} 
+                  alt="Premium workspace products" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               {/* Floating Elements */}
               <div className="absolute -top-6 -right-6 bg-background rounded-2xl shadow-xl p-4 border animate-bounce" style={{ animationDuration: '3s' }}>
