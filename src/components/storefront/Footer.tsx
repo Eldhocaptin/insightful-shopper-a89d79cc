@@ -56,14 +56,9 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border/50">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} CURATE. All rights reserved.
-            </p>
-            <p className="text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full">
-              🔬 This site is part of a product research experiment
-            </p>
-          </div>
+          <p className="text-xs text-muted-foreground text-center md:text-left">
+            © {new Date().getFullYear()} CURATE. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
