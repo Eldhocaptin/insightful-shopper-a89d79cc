@@ -54,7 +54,7 @@ const CheckoutPage = () => {
     return (
       <>
         <Helmet>
-          <title>Thank You | CURATE</title>
+          <title>Thank You | Dropzy</title>
         </Helmet>
         <div className="container py-20">
           <div className="max-w-md mx-auto text-center space-y-6 animate-scale-in">
@@ -81,7 +81,7 @@ const CheckoutPage = () => {
   return (
     <>
       <Helmet>
-        <title>Checkout | CURATE</title>
+        <title>Checkout | Dropzy</title>
       </Helmet>
 
       <div className="container py-8 md:py-12">
