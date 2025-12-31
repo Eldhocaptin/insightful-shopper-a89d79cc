@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DBProduct } from '@/hooks/useProductsDB';
 import { useCart } from '@/contexts/CartContext';
@@ -10,9 +10,10 @@ import { formatPrice } from '@/lib/utils';
 
 interface ProductCardProps {
   product: DBProduct;
+  onQuickView?: (product: DBProduct) => void;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, onQuickView }: ProductCardProps) => {
   const { addToCart } = useCart();
   const trackEvent = useTrackEvent();
   const { onHoverStart, onHoverEnd } = useProductCardTracking(product.id);
@@ -32,6 +33,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
       title: 'Added to cart',
       description: `${product.name} has been added to your cart.`,
     });
+  };
+
+  const handleQuickView = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onQuickView?.(product);
   };
 
   const handleClick = () => {
@@ -64,14 +71,28 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </span>
         )}
         <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors duration-300" />
-        <Button
-          variant="secondary"
-          size="icon"
-          className="absolute bottom-3 right-3 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-elegant"
-          onClick={handleAddToCart}
-        >
-          <ShoppingBag className="h-4 w-4" />
-        </Button>
+        
+        {/* Action Buttons */}
+        <div className="absolute bottom-3 right-3 flex gap-2">
+          {onQuickView && (
+            <Button
+              variant="secondary"
+              size="icon"
+              className="opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-elegant"
+              onClick={handleQuickView}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          )}
+          <Button
+            variant="secondary"
+            size="icon"
+            className="opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-elegant delay-75"
+            onClick={handleAddToCart}
+          >
+            <ShoppingBag className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
       <div className="space-y-1">
         <p className="text-xs text-muted-foreground uppercase tracking-wider">

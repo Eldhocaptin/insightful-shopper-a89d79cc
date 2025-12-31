@@ -1,5 +1,7 @@
-import { useActiveProducts } from '@/hooks/useProductsDB';
+import { useState } from 'react';
+import { useActiveProducts, DBProduct } from '@/hooks/useProductsDB';
 import ProductCard from '@/components/storefront/ProductCard';
+import QuickViewModal from '@/components/storefront/QuickViewModal';
 import { Helmet } from 'react-helmet-async';
 import { Loader2, ArrowRight, Truck, RotateCcw, Shield, Clock, Target, Sparkles, Heart, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -10,6 +12,7 @@ import { formatPrice } from '@/lib/utils';
 
 const Index = () => {
   const { data: products, isLoading, error } = useActiveProducts();
+  const [quickViewProduct, setQuickViewProduct] = useState<DBProduct | null>(null);
 
   const benefits = [
     { icon: Truck, text: 'Free Shipping Over ₹500' },
@@ -227,7 +230,7 @@ const Index = () => {
                     animationFillMode: 'forwards'
                   }}
                 >
-                  <ProductCard product={product} />
+                  <ProductCard product={product} onQuickView={setQuickViewProduct} />
                 </div>
               ))}
             </div>
@@ -297,6 +300,13 @@ const Index = () => {
           </div>
         </div>
       </AnimatedSection>
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        open={!!quickViewProduct}
+        onOpenChange={(open) => !open && setQuickViewProduct(null)}
+      />
     </>
   );
 };
