@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/contexts/CartContext';
-import { useProducts } from '@/contexts/ProductContext';
+import { useTrackEvent } from '@/hooks/useTracking';
 import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -15,18 +15,18 @@ import {
 
 const CheckoutPage = () => {
   const { items, totalPrice, clearCart } = useCart();
-  const { trackEvent } = useProducts();
+  const trackEvent = useTrackEvent();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   // Track checkout intent for all items
-  useState(() => {
+  useEffect(() => {
     items.forEach(item => {
-      trackEvent(item.product.id, 'checkoutIntent', item.quantity);
+      trackEvent.mutate({ productId: item.product.id, eventType: 'checkoutIntent', value: item.quantity });
     });
-  });
+  }, []);
 
   if (items.length === 0 && !submitted) {
     navigate('/cart');
@@ -172,7 +172,7 @@ const CheckoutPage = () => {
                   <div key={item.product.id} className="flex gap-4">
                     <div className="w-16 h-16 rounded-lg bg-muted overflow-hidden flex-shrink-0">
                       <img
-                        src={item.product.images[0]}
+                        src={item.product.images?.[0] || '/placeholder.svg'}
                         alt={item.product.name}
                         className="w-full h-full object-cover"
                       />
@@ -182,7 +182,7 @@ const CheckoutPage = () => {
                       <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                     </div>
                     <span className="text-sm font-medium">
-                      ${(item.product.price * item.quantity).toFixed(2)}
+                      ${(Number(item.product.price) * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 ))}

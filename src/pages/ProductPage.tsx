@@ -1,48 +1,37 @@
 import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Minus, Plus, ShoppingBag, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
-import { useProducts } from '@/contexts/ProductContext';
+import { useProduct } from '@/hooks/useProductsDB';
+import { useProductPageTracking } from '@/hooks/useTracking';
 import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet-async';
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { getProduct, trackEvent } = useProducts();
+  const { data: product, isLoading, error } = useProduct(id || '');
   const { addToCart } = useCart();
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
-  const [scrollDepth, setScrollDepth] = useState(0);
-
-  const product = getProduct(id || '');
+  
+  const { trackImpression, trackAddToCart } = useProductPageTracking(id);
 
   useEffect(() => {
     if (product) {
-      trackEvent(product.id, 'impression');
-      const startTime = Date.now();
-
-      const handleScroll = () => {
-        const scrolled = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const depth = Math.round((scrolled / docHeight) * 100);
-        if (depth > scrollDepth) {
-          setScrollDepth(depth);
-        }
-      };
-
-      window.addEventListener('scroll', handleScroll);
-
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-        const timeSpent = Math.round((Date.now() - startTime) / 1000);
-        trackEvent(product.id, 'timeOnPage', timeSpent);
-        trackEvent(product.id, 'scroll', scrollDepth);
-      };
+      trackImpression();
     }
-  }, [product, trackEvent, scrollDepth]);
+  }, [product, trackImpression]);
 
-  if (!product) {
+  if (isLoading) {
+    return (
+      <div className="container py-20 flex justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (error || !product) {
     return (
       <div className="container py-20 text-center">
         <h1 className="text-2xl font-semibold mb-4">Product not found</h1>
@@ -54,22 +43,29 @@ const ProductPage = () => {
   }
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
-    trackEvent(product.id, 'addToCart', quantity);
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      images: product.images,
+    }, quantity);
+    trackAddToCart(quantity);
     toast({
       title: 'Added to cart',
       description: `${quantity}x ${product.name} has been added to your cart.`,
     });
   };
 
-  const discount = product.originalPrice
-    ? Math.round((1 - product.price / product.originalPrice) * 100)
+  const discount = product.original_price
+    ? Math.round((1 - product.price / product.original_price) * 100)
     : null;
+
+  const imageUrl = product.images?.[0] || '/placeholder.svg';
 
   return (
     <>
       <Helmet>
-        <title>{product.name} | CURATE</title>
+        <title>{`${product.name} | CURATE`}</title>
         <meta name="description" content={product.description} />
       </Helmet>
 
@@ -87,7 +83,7 @@ const ProductPage = () => {
           <div className="animate-fade-in">
             <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted/50">
               <img
-                src={product.images[0]}
+                src={imageUrl}
                 alt={product.name}
                 className="h-full w-full object-cover"
               />
@@ -110,11 +106,11 @@ const ProductPage = () => {
               </h1>
               <div className="flex items-center gap-3">
                 <span className="text-3xl font-semibold">
-                  ${product.price.toFixed(2)}
+                  ${Number(product.price).toFixed(2)}
                 </span>
-                {product.originalPrice && (
+                {product.original_price && (
                   <span className="text-xl text-muted-foreground line-through">
-                    ${product.originalPrice.toFixed(2)}
+                    ${Number(product.original_price).toFixed(2)}
                   </span>
                 )}
               </div>
@@ -155,7 +151,7 @@ const ProductPage = () => {
               onClick={handleAddToCart}
             >
               <ShoppingBag className="mr-2 h-5 w-5" />
-              Add to Cart — ${(product.price * quantity).toFixed(2)}
+              Add to Cart — ${(Number(product.price) * quantity).toFixed(2)}
             </Button>
 
             <div className="grid grid-cols-2 gap-4 pt-4">

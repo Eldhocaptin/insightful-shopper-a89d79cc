@@ -1,10 +1,10 @@
-import { useProducts } from '@/contexts/ProductContext';
+import { useActiveProducts } from '@/hooks/useProductsDB';
 import ProductCard from '@/components/storefront/ProductCard';
 import { Helmet } from 'react-helmet-async';
+import { Loader2 } from 'lucide-react';
 
 const Index = () => {
-  const { products } = useProducts();
-  const activeProducts = products.filter(p => p.isActive);
+  const { data: products, isLoading, error } = useActiveProducts();
 
   return (
     <>
@@ -34,22 +34,38 @@ const Index = () => {
           <div className="flex items-center justify-between mb-10">
             <div>
               <h2 className="text-2xl font-semibold mb-1">All Products</h2>
-              <p className="text-muted-foreground">{activeProducts.length} items</p>
+              <p className="text-muted-foreground">
+                {isLoading ? 'Loading...' : `${products?.length || 0} items`}
+              </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
-            {activeProducts.map((product, index) => (
-              <div
-                key={product.id}
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
+          {isLoading && (
+            <div className="flex justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          )}
 
-          {activeProducts.length === 0 && (
+          {error && (
+            <div className="text-center py-20">
+              <p className="text-destructive">Failed to load products</p>
+            </div>
+          )}
+
+          {!isLoading && products && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+              {products.map((product, index) => (
+                <div
+                  key={product.id}
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!isLoading && products?.length === 0 && (
             <div className="text-center py-20">
               <p className="text-muted-foreground">No products available at the moment.</p>
             </div>
