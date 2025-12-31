@@ -148,7 +148,7 @@ const AdminProducts = () => {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold mb-2">Products</h1>
+          <h1 className="text-2xl font-bold mb-2 text-foreground">Products</h1>
           <p className="text-muted-foreground">Manage your product catalog for testing.</p>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
