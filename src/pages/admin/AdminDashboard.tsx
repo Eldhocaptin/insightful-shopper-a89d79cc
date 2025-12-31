@@ -100,7 +100,7 @@ const AdminDashboard = () => {
                       </div>
                       <div>
                         <p className="font-medium">{product.name}</p>
-                        <p className="text-xs text-muted-foreground">${Number(product.price).toFixed(2)}</p>
+                        <p className="text-xs text-muted-foreground">₹{Number(product.price).toFixed(2)}</p>
                       </div>
                     </div>
                   </TableCell>

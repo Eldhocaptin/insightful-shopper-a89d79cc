@@ -81,7 +81,7 @@ const CartPage = () => {
                         {item.product.name}
                       </Link>
                       <p className="text-sm text-muted-foreground mt-1">
-                        ${Number(item.product.price).toFixed(2)} each
+                        ₹{Number(item.product.price).toFixed(2)} each
                       </p>
                     </div>
                     <Button
@@ -117,7 +117,7 @@ const CartPage = () => {
                       </Button>
                     </div>
                     <span className="font-semibold">
-                      ${(Number(item.product.price) * item.quantity).toFixed(2)}
+                      ₹{(Number(item.product.price) * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -133,18 +133,18 @@ const CartPage = () => {
               <div className="space-y-4 pb-6 border-b border-border">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>${totalPrice.toFixed(2)}</span>
+                  <span>₹{totalPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>{totalPrice >= 50 ? 'Free' : '$5.99'}</span>
+                  <span>{totalPrice >= 500 ? 'Free' : '₹49'}</span>
                 </div>
               </div>
 
               <div className="flex justify-between py-6 text-lg font-semibold">
                 <span>Total</span>
                 <span>
-                  ${(totalPrice >= 50 ? totalPrice : totalPrice + 5.99).toFixed(2)}
+                  ₹{(totalPrice >= 500 ? totalPrice : totalPrice + 49).toFixed(2)}
                 </span>
               </div>
 
