@@ -29,8 +29,10 @@ const ProductInterestTable = ({ scores, products, onProductClick }: ProductInter
 
   const getTrendIcon = (score: InterestScore) => {
     // Simple trend based on return visitors vs unique sessions ratio
-    if (score.unique_sessions === 0) return <Minus className="h-4 w-4 text-muted-foreground" />;
-    const ratio = score.return_visitors / score.unique_sessions;
+    const uniqueSessions = score.unique_sessions || 0;
+    const returnVisitors = score.return_visitors || 0;
+    if (uniqueSessions === 0) return <Minus className="h-4 w-4 text-muted-foreground" />;
+    const ratio = returnVisitors / uniqueSessions;
     if (ratio >= 0.3) return <TrendingUp className="h-4 w-4 text-green-500" />;
     if (ratio >= 0.1) return <Minus className="h-4 w-4 text-muted-foreground" />;
     return <TrendingDown className="h-4 w-4 text-red-500" />;
@@ -140,8 +142,8 @@ const ProductInterestTable = ({ scores, products, onProductClick }: ProductInter
                 </TableCell>
                 <TableCell className="text-center">
                   <div className="flex flex-col items-center">
-                    <span className="font-medium">{score.unique_sessions}</span>
-                    {score.return_visitors > 0 && (
+                    <span className="font-medium">{score.unique_sessions || 0}</span>
+                    {(score.return_visitors || 0) > 0 && (
                       <span className="text-xs text-green-600">
                         +{score.return_visitors} returned
                       </span>
@@ -149,10 +151,10 @@ const ProductInterestTable = ({ scores, products, onProductClick }: ProductInter
                   </div>
                 </TableCell>
                 <TableCell className="text-center font-medium">
-                  {score.total_add_to_cart}
+                  {score.total_add_to_cart || 0}
                 </TableCell>
                 <TableCell className="text-center text-sm text-muted-foreground">
-                  {formatTime(score.avg_time_on_page)}
+                  {formatTime(score.avg_time_on_page || 0)}
                 </TableCell>
               </TableRow>
             );
