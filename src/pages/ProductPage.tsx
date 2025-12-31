@@ -1,10 +1,11 @@
 import { useParams, Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ArrowLeft, Minus, Plus, ShoppingBag, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { useProduct } from '@/hooks/useProductsDB';
 import { useProductPageTracking } from '@/hooks/useTracking';
+import { useProductPageTracking as useInterestPageTracking } from '@/hooks/useInterestTracking';
 import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet-async';
 
@@ -14,8 +15,21 @@ const ProductPage = () => {
   const { addToCart } = useCart();
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
+  const addToCartButtonRef = useRef<HTMLButtonElement>(null);
   
+  // Original tracking
   const { trackImpression, trackAddToCart } = useProductPageTracking(id);
+  
+  // Enhanced interest tracking
+  const { 
+    trackImageView,
+    trackQuantityChange,
+    trackAddToCart: trackInterestAddToCart,
+    onPriceHoverStart,
+    onPriceHoverEnd,
+    onAddToCartHoverStart,
+    onAddToCartHoverEnd,
+  } = useInterestPageTracking(id);
 
   useEffect(() => {
     if (product) {
@@ -50,10 +64,17 @@ const ProductPage = () => {
       images: product.images,
     }, quantity);
     trackAddToCart(quantity);
+    trackInterestAddToCart();
+    onAddToCartHoverEnd(true); // Mark as clicked
     toast({
       title: 'Added to cart',
       description: `${quantity}x ${product.name} has been added to your cart.`,
     });
+  };
+
+  const handleQuantityChange = (newQty: number) => {
+    setQuantity(newQty);
+    trackQuantityChange(newQty);
   };
 
   const discount = product.original_price
@@ -81,7 +102,10 @@ const ProductPage = () => {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Product Image */}
           <div className="animate-fade-in">
-            <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted/50">
+            <div 
+              className="relative aspect-square overflow-hidden rounded-2xl bg-muted/50 cursor-zoom-in"
+              onClick={trackImageView}
+            >
               <img
                 src={imageUrl}
                 alt={product.name}
@@ -104,7 +128,11 @@ const ProductPage = () => {
               <h1 className="text-3xl md:text-4xl font-semibold mb-4">
                 {product.name}
               </h1>
-              <div className="flex items-center gap-3">
+              <div 
+                className="flex items-center gap-3"
+                onMouseEnter={onPriceHoverStart}
+                onMouseLeave={onPriceHoverEnd}
+              >
                 <span className="text-3xl font-semibold">
                   ₹{Number(product.price).toFixed(2)}
                 </span>
@@ -128,7 +156,7 @@ const ProductPage = () => {
                     variant="outline"
                     size="icon"
                     className="h-9 w-9"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    onClick={() => handleQuantityChange(Math.max(1, quantity - 1))}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -137,7 +165,7 @@ const ProductPage = () => {
                     variant="outline"
                     size="icon"
                     className="h-9 w-9"
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => handleQuantityChange(quantity + 1)}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -146,9 +174,12 @@ const ProductPage = () => {
             </div>
 
             <Button
+              ref={addToCartButtonRef}
               size="lg"
               className="w-full h-14 text-base gradient-primary shadow-glow"
               onClick={handleAddToCart}
+              onMouseEnter={onAddToCartHoverStart}
+              onMouseLeave={() => onAddToCartHoverEnd(false)}
             >
               <ShoppingBag className="mr-2 h-5 w-5" />
               Add to Cart — ₹{(Number(product.price) * quantity).toFixed(2)}

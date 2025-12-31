@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { DBProduct } from '@/hooks/useProductsDB';
 import { useCart } from '@/contexts/CartContext';
 import { useTrackEvent } from '@/hooks/useTracking';
+import { useProductCardTracking } from '@/hooks/useInterestTracking';
 import { useToast } from '@/hooks/use-toast';
 
 interface ProductCardProps {
@@ -13,6 +14,7 @@ interface ProductCardProps {
 const ProductCard = ({ product }: ProductCardProps) => {
   const { addToCart } = useCart();
   const trackEvent = useTrackEvent();
+  const { onHoverStart, onHoverEnd } = useProductCardTracking(product.id);
   const { toast } = useToast();
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -45,6 +47,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
     <Link
       to={`/product/${product.id}`}
       onClick={handleClick}
+      onMouseEnter={onHoverStart}
+      onMouseLeave={onHoverEnd}
       className="group block animate-fade-in"
     >
       <div className="relative aspect-square overflow-hidden rounded-xl bg-muted/50 mb-4">
