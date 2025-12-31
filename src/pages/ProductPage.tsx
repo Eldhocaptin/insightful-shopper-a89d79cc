@@ -8,6 +8,7 @@ import { useProductPageTracking } from '@/hooks/useTracking';
 import { useProductPageTracking as useInterestPageTracking } from '@/hooks/useInterestTracking';
 import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet-async';
+import { formatPrice } from '@/lib/utils';
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -134,11 +135,11 @@ const ProductPage = () => {
                 onMouseLeave={onPriceHoverEnd}
               >
                 <span className="text-3xl font-semibold">
-                  ₹{Number(product.price).toFixed(2)}
+                  {formatPrice(Number(product.price))}
                 </span>
                 {product.original_price && (
                   <span className="text-xl text-muted-foreground line-through">
-                    ₹{Number(product.original_price).toFixed(2)}
+                    {formatPrice(Number(product.original_price))}
                   </span>
                 )}
               </div>
@@ -182,7 +183,7 @@ const ProductPage = () => {
               onMouseLeave={() => onAddToCartHoverEnd(false)}
             >
               <ShoppingBag className="mr-2 h-5 w-5" />
-              Add to Cart — ₹{(Number(product.price) * quantity).toFixed(2)}
+              Add to Cart — {formatPrice(Number(product.price) * quantity)}
             </Button>
 
             <div className="grid grid-cols-2 gap-4 pt-4">
