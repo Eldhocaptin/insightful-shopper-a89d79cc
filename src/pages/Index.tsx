@@ -52,7 +52,7 @@ const Index = () => {
               </h1>
               
               <p className="text-lg sm:text-xl text-muted-foreground max-w-md mx-auto lg:mx-0">
-                Premium quality products designed to elevate your productivity and style. Built to last.
+                Premium quality products curated for your workspace and everyday life.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
