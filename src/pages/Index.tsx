@@ -1,10 +1,12 @@
 import { useActiveProducts } from '@/hooks/useProductsDB';
 import ProductCard from '@/components/storefront/ProductCard';
 import { Helmet } from 'react-helmet-async';
-import { Loader2, ArrowRight, Truck, RotateCcw, Shield, Clock, Target, Sparkles, Heart } from 'lucide-react';
+import { Loader2, ArrowRight, Truck, RotateCcw, Shield, Clock, Target, Sparkles, Heart, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import heroProductsImg from '@/assets/hero-products.jpg';
+import AnimatedSection from '@/components/storefront/AnimatedSection';
+import { formatPrice } from '@/lib/utils';
 
 const Index = () => {
   const { data: products, isLoading, error } = useActiveProducts();
@@ -16,11 +18,14 @@ const Index = () => {
     { icon: Clock, text: '24/7 Support' },
   ];
 
+  // Get first product as featured if available
+  const featuredProduct = products?.[0];
+
   return (
     <>
       <Helmet>
         <title>Dropzy | Premium Lifestyle Products</title>
-        <meta name="description" content="Shop premium lifestyle products. Quality essentials for your workspace and everyday life." />
+        <meta name="description" content="Shop premium lifestyle products. Quality essentials for your everyday life." />
       </Helmet>
 
       {/* Announcement Bar */}
@@ -38,7 +43,7 @@ const Index = () => {
         <div className="container relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
-            <div className="space-y-8 text-center lg:text-left">
+            <div className="space-y-8 text-center lg:text-left animate-fade-in">
               <div className="inline-block">
                 <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold tracking-wide">
                   BESTSELLER COLLECTION
@@ -46,7 +51,7 @@ const Index = () => {
               </div>
               
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05]">
-                Workspace
+                Premium
                 <span className="block text-primary">Essentials</span>
                 <span className="block text-muted-foreground text-4xl sm:text-5xl lg:text-6xl font-medium mt-2">Redefined.</span>
               </h1>
@@ -90,12 +95,12 @@ const Index = () => {
             </div>
 
             {/* Right Visual */}
-            <div className="relative hidden lg:block">
+            <div className="relative hidden lg:block animate-scale-in">
               <div className="absolute -inset-4 bg-gradient-to-tr from-primary/20 via-transparent to-accent/20 rounded-3xl blur-3xl" />
               <div className="relative aspect-square rounded-3xl overflow-hidden border border-border/50 shadow-2xl">
                 <img 
                   src={heroProductsImg} 
-                  alt="Premium workspace products" 
+                  alt="Premium products" 
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -113,7 +118,7 @@ const Index = () => {
       </section>
 
       {/* Benefits Strip */}
-      <section className="border-y border-border bg-muted/30">
+      <AnimatedSection className="border-y border-border bg-muted/30">
         <div className="container">
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-border">
             {benefits.map((benefit) => (
@@ -124,11 +129,62 @@ const Index = () => {
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
+
+      {/* Featured Product Banner */}
+      {featuredProduct && (
+        <AnimatedSection className="py-12 md:py-16 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5" delay={100}>
+          <div className="container">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground p-8 md:p-12">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+              
+              <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8">
+                <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden bg-white/20 shrink-0 shadow-2xl">
+                  <img 
+                    src={featuredProduct.images?.[0] || '/placeholder.svg'} 
+                    alt={featuredProduct.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                <div className="flex-1 text-center lg:text-left space-y-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-sm font-semibold">
+                    <Zap className="w-4 h-4" />
+                    FEATURED DEAL
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold">{featuredProduct.name}</h3>
+                  <p className="text-white/80 max-w-md">{featuredProduct.description?.slice(0, 100)}...</p>
+                  <div className="flex items-center gap-3 justify-center lg:justify-start">
+                    <span className="text-3xl font-bold">{formatPrice(Number(featuredProduct.price))}</span>
+                    {featuredProduct.original_price && (
+                      <span className="text-lg text-white/60 line-through">
+                        {formatPrice(Number(featuredProduct.original_price))}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                <Button 
+                  size="lg" 
+                  variant="secondary" 
+                  className="rounded-full px-8 h-14 text-base font-semibold shadow-lg"
+                  asChild
+                >
+                  <Link to={`/product/${featuredProduct.id}`}>
+                    Shop Now
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </AnimatedSection>
+      )}
 
       {/* Featured Products */}
-      <section id="products" className="py-20 md:py-28">
-        <div className="container">
+      <AnimatedSection className="py-20 md:py-28" delay={200}>
+        <div className="container" id="products">
           {/* Section Header */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
             <div>
@@ -187,10 +243,10 @@ const Index = () => {
             </div>
           )}
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* Promo Banner */}
-      <section className="py-16 bg-foreground text-background">
+      <AnimatedSection className="py-16 bg-foreground text-background" delay={300}>
         <div className="container">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 text-center lg:text-left">
             <div className="space-y-3">
@@ -210,10 +266,10 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* Why Choose Us */}
-      <section className="py-20 md:py-28 bg-muted/30">
+      <AnimatedSection className="py-20 md:py-28 bg-muted/30" delay={400}>
         <div className="container">
           <div className="text-center mb-16">
             <span className="text-primary font-semibold text-sm tracking-wider uppercase">Why Dropzy</span>
@@ -225,8 +281,12 @@ const Index = () => {
               { icon: Target, title: 'Curated Selection', desc: 'Every product is hand-picked for quality, functionality, and design excellence.' },
               { icon: Sparkles, title: 'Premium Quality', desc: 'We source only the finest materials and partner with trusted manufacturers.' },
               { icon: Heart, title: 'Satisfaction Guaranteed', desc: "Not happy? We'll make it right with our 7-day hassle-free return policy." },
-            ].map((item) => (
-              <div key={item.title} className="bg-background rounded-2xl p-8 border border-border hover:shadow-xl transition-shadow duration-300 text-center">
+            ].map((item, index) => (
+              <div 
+                key={item.title} 
+                className="bg-background rounded-2xl p-8 border border-border hover:shadow-xl transition-all duration-300 text-center hover:-translate-y-1"
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
                 <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
                   <item.icon className="w-8 h-8 text-primary" />
                 </div>
@@ -236,7 +296,7 @@ const Index = () => {
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
     </>
   );
 };
