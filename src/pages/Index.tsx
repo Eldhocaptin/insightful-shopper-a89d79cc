@@ -3,8 +3,9 @@ import { useActiveProducts, DBProduct } from '@/hooks/useProductsDB';
 import { useRealtimeProducts } from '@/hooks/useRealtimeSubscriptions';
 import ProductCard from '@/components/storefront/ProductCard';
 import QuickViewModal from '@/components/storefront/QuickViewModal';
+import ProductCardSkeleton from '@/components/storefront/ProductCardSkeleton';
 import { Helmet } from 'react-helmet-async';
-import { Loader2, ArrowRight, Truck, RotateCcw, Shield, Clock, Target, Sparkles, Heart, Zap } from 'lucide-react';
+import { ArrowRight, Truck, RotateCcw, Shield, Clock, Target, Sparkles, Heart, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import heroProductsImg from '@/assets/hero-products.jpg';
@@ -208,9 +209,10 @@ const Index = () => {
           </div>
 
           {isLoading && (
-            <div className="flex flex-col items-center justify-center py-24 gap-4">
-              <Loader2 className="h-10 w-10 animate-spin text-primary" />
-              <p className="text-muted-foreground">Loading products...</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[...Array(6)].map((_, index) => (
+                <ProductCardSkeleton key={index} />
+              ))}
             </div>
           )}
 
