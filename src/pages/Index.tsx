@@ -73,25 +73,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Trust Section */}
-      <section className="py-16 border-t border-border/50 bg-muted/30">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div className="space-y-2">
-              <h3 className="font-semibold">Free Shipping</h3>
-              <p className="text-sm text-muted-foreground">On orders over $50</p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-semibold">Easy Returns</h3>
-              <p className="text-sm text-muted-foreground">30-day return policy</p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-semibold">Secure Checkout</h3>
-              <p className="text-sm text-muted-foreground">Encrypted transactions</p>
-            </div>
-          </div>
-        </div>
-      </section>
     </>
   );
 };
