@@ -17,9 +17,9 @@ const CartPage = () => {
   if (items.length === 0) {
     return (
       <>
-        <Helmet>
-          <title>Cart | CURATE</title>
-        </Helmet>
+      <Helmet>
+        <title>Cart | CURATE</title>
+      </Helmet>
         <div className="container py-20">
           <div className="max-w-md mx-auto text-center space-y-6">
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto">
@@ -41,7 +41,7 @@ const CartPage = () => {
   return (
     <>
       <Helmet>
-        <title>Cart ({items.length}) | CURATE</title>
+        <title>{`Cart (${items.length}) | CURATE`}</title>
       </Helmet>
 
       <div className="container py-8 md:py-12">
