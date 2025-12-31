@@ -14,6 +14,100 @@ export type Database = {
   }
   public: {
     Tables: {
+      customer_interest_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          event_value: number | null
+          id: string
+          metadata: Json | null
+          product_id: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          event_value?: number | null
+          id?: string
+          metadata?: Json | null
+          product_id: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          event_value?: number | null
+          id?: string
+          metadata?: Json | null
+          product_id?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_interest_events_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_interest_scores: {
+        Row: {
+          avg_time_on_page: number | null
+          buyer_confidence: number | null
+          created_at: string
+          hesitation_score: number | null
+          id: string
+          interest_level: string
+          interest_score: number
+          product_id: string
+          return_visitors: number | null
+          total_add_to_cart: number | null
+          total_hovers: number | null
+          unique_sessions: number | null
+          updated_at: string
+        }
+        Insert: {
+          avg_time_on_page?: number | null
+          buyer_confidence?: number | null
+          created_at?: string
+          hesitation_score?: number | null
+          id?: string
+          interest_level?: string
+          interest_score?: number
+          product_id: string
+          return_visitors?: number | null
+          total_add_to_cart?: number | null
+          total_hovers?: number | null
+          unique_sessions?: number | null
+          updated_at?: string
+        }
+        Update: {
+          avg_time_on_page?: number | null
+          buyer_confidence?: number | null
+          created_at?: string
+          hesitation_score?: number | null
+          id?: string
+          interest_level?: string
+          interest_score?: number
+          product_id?: string
+          return_visitors?: number | null
+          total_add_to_cart?: number | null
+          total_hovers?: number | null
+          unique_sessions?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_interest_scores_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_analytics: {
         Row: {
           add_to_cart_count: number
@@ -96,6 +190,39 @@ export type Database = {
           name?: string
           original_price?: number | null
           price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      session_interest_profiles: {
+        Row: {
+          categories_browsed: string[] | null
+          created_at: string
+          id: string
+          is_return_visitor: boolean | null
+          products_viewed: string[] | null
+          session_id: string
+          total_engagement_time: number | null
+          updated_at: string
+        }
+        Insert: {
+          categories_browsed?: string[] | null
+          created_at?: string
+          id?: string
+          is_return_visitor?: boolean | null
+          products_viewed?: string[] | null
+          session_id: string
+          total_engagement_time?: number | null
+          updated_at?: string
+        }
+        Update: {
+          categories_browsed?: string[] | null
+          created_at?: string
+          id?: string
+          is_return_visitor?: boolean | null
+          products_viewed?: string[] | null
+          session_id?: string
+          total_engagement_time?: number | null
           updated_at?: string
         }
         Relationships: []
