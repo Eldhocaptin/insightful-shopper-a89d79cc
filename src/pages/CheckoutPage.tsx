@@ -12,6 +12,7 @@ import {
   Alert,
   AlertDescription,
 } from '@/components/ui/alert';
+import { formatPrice } from '@/lib/utils';
 
 const CheckoutPage = () => {
   const { items, totalPrice, clearCart } = useCart();
@@ -175,7 +176,7 @@ const CheckoutPage = () => {
                       <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                     </div>
                     <span className="text-sm font-medium">
-                      ₹{(Number(item.product.price) * item.quantity).toFixed(2)}
+                      {formatPrice(Number(item.product.price) * item.quantity)}
                     </span>
                   </div>
                 ))}
@@ -184,11 +185,11 @@ const CheckoutPage = () => {
               <div className="space-y-3 py-6 border-b border-border">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>₹{totalPrice.toFixed(2)}</span>
+                  <span>{formatPrice(totalPrice)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>{shippingCost === 0 ? 'Free' : `₹${shippingCost}`}</span>
+                  <span>{shippingCost === 0 ? 'Free' : formatPrice(shippingCost)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Estimated Tax</span>
@@ -198,7 +199,7 @@ const CheckoutPage = () => {
 
               <div className="flex justify-between pt-6 text-lg font-semibold">
                 <span>Total</span>
-                <span>₹{finalTotal.toFixed(2)}</span>
+                <span>{formatPrice(finalTotal)}</span>
               </div>
             </div>
           </div>

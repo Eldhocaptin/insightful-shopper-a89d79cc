@@ -6,6 +6,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useTrackEvent } from '@/hooks/useTracking';
 import { useProductCardTracking } from '@/hooks/useInterestTracking';
 import { useToast } from '@/hooks/use-toast';
+import { formatPrice } from '@/lib/utils';
 
 interface ProductCardProps {
   product: DBProduct;
@@ -80,10 +81,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
           {product.name}
         </h3>
         <div className="flex items-center gap-2">
-          <span className="font-semibold">₹{Number(product.price).toFixed(2)}</span>
+          <span className="font-semibold">{formatPrice(Number(product.price))}</span>
           {product.original_price && (
             <span className="text-sm text-muted-foreground line-through">
-              ₹{Number(product.original_price).toFixed(2)}
+              {formatPrice(Number(product.original_price))}
             </span>
           )}
         </div>
