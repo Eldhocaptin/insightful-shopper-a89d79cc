@@ -117,11 +117,11 @@ const AdminProducts = () => {
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="price">Price ($)</Label>
+          <Label htmlFor="price">Price (₹)</Label>
           <Input id="price" type="number" step="0.01" value={formData.price} onChange={e => setFormData(prev => ({ ...prev, price: e.target.value }))} required />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="original_price">Original Price ($)</Label>
+          <Label htmlFor="original_price">Original Price (₹)</Label>
           <Input id="original_price" type="number" step="0.01" value={formData.original_price} onChange={e => setFormData(prev => ({ ...prev, original_price: e.target.value }))} placeholder="Optional" />
         </div>
       </div>
@@ -192,8 +192,8 @@ const AdminProducts = () => {
                 </TableCell>
                 <TableCell>{product.category}</TableCell>
                 <TableCell>
-                  <span className="font-medium">${Number(product.price).toFixed(2)}</span>
-                  {product.original_price && <span className="text-xs text-muted-foreground ml-2 line-through">${Number(product.original_price).toFixed(2)}</span>}
+                  <span className="font-medium">₹{Number(product.price).toFixed(2)}</span>
+                  {product.original_price && <span className="text-xs text-muted-foreground ml-2 line-through">₹{Number(product.original_price).toFixed(2)}</span>}
                 </TableCell>
                 <TableCell className="text-center">
                   <Button variant="ghost" size="sm" onClick={() => toggleActive.mutate({ id: product.id, is_active: !product.is_active })}

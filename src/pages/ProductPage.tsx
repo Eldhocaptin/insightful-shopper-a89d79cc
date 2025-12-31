@@ -106,11 +106,11 @@ const ProductPage = () => {
               </h1>
               <div className="flex items-center gap-3">
                 <span className="text-3xl font-semibold">
-                  ${Number(product.price).toFixed(2)}
+                  ₹{Number(product.price).toFixed(2)}
                 </span>
                 {product.original_price && (
                   <span className="text-xl text-muted-foreground line-through">
-                    ${Number(product.original_price).toFixed(2)}
+                    ₹{Number(product.original_price).toFixed(2)}
                   </span>
                 )}
               </div>
@@ -151,13 +151,13 @@ const ProductPage = () => {
               onClick={handleAddToCart}
             >
               <ShoppingBag className="mr-2 h-5 w-5" />
-              Add to Cart — ${(Number(product.price) * quantity).toFixed(2)}
+              Add to Cart — ₹{(Number(product.price) * quantity).toFixed(2)}
             </Button>
 
             <div className="grid grid-cols-2 gap-4 pt-4">
               <div className="text-center p-4 rounded-xl bg-muted/50">
                 <p className="text-sm text-muted-foreground">Free Shipping</p>
-                <p className="text-sm font-medium">Orders over $50</p>
+                <p className="text-sm font-medium">Orders over ₹500</p>
               </div>
               <div className="text-center p-4 rounded-xl bg-muted/50">
                 <p className="text-sm text-muted-foreground">Easy Returns</p>

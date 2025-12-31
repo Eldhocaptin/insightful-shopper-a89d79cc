@@ -75,7 +75,7 @@ const CheckoutPage = () => {
     );
   }
 
-  const shippingCost = totalPrice >= 50 ? 0 : 5.99;
+  const shippingCost = totalPrice >= 500 ? 0 : 49;
   const finalTotal = totalPrice + shippingCost;
 
   return (
@@ -182,7 +182,7 @@ const CheckoutPage = () => {
                       <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                     </div>
                     <span className="text-sm font-medium">
-                      ${(Number(item.product.price) * item.quantity).toFixed(2)}
+                      ₹{(Number(item.product.price) * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 ))}
@@ -191,11 +191,11 @@ const CheckoutPage = () => {
               <div className="space-y-3 py-6 border-b border-border">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>${totalPrice.toFixed(2)}</span>
+                  <span>₹{totalPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>{shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}</span>
+                  <span>{shippingCost === 0 ? 'Free' : `₹${shippingCost}`}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Estimated Tax</span>
@@ -205,7 +205,7 @@ const CheckoutPage = () => {
 
               <div className="flex justify-between pt-6 text-lg font-semibold">
                 <span>Total</span>
-                <span>${finalTotal.toFixed(2)}</span>
+                <span>₹{finalTotal.toFixed(2)}</span>
               </div>
             </div>
           </div>
