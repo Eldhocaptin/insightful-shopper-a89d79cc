@@ -1,4 +1,5 @@
 import { useProducts, useProductAnalytics } from '@/hooks/useProductsDB';
+import { useRealtimeProducts, useRealtimeAnalytics } from '@/hooks/useRealtimeSubscriptions';
 import { computeAnalytics, calculateViabilityScore } from '@/hooks/useViabilityScore';
 import { Eye, MousePointer, ShoppingCart, CreditCard, TrendingUp, Package, Loader2 } from 'lucide-react';
 import StatCard from '@/components/admin/StatCard';
@@ -11,6 +12,10 @@ import {
 } from '@/components/ui/table';
 
 const AdminDashboard = () => {
+  // Enable realtime updates
+  useRealtimeProducts();
+  useRealtimeAnalytics();
+  
   const { data: products, isLoading: productsLoading } = useProducts();
   const { data: analyticsData, isLoading: analyticsLoading } = useProductAnalytics();
 
