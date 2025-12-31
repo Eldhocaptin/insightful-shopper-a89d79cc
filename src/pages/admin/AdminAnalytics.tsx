@@ -1,27 +1,36 @@
-import { useProducts } from '@/contexts/ProductContext';
+import { useProducts, useProductAnalytics } from '@/hooks/useProductsDB';
+import { computeAnalytics, calculateViabilityScore } from '@/hooks/useViabilityScore';
 import { useState } from 'react';
 import ViabilityScoreRing from '@/components/admin/ViabilityScoreRing';
 import ViabilityBadge from '@/components/admin/ViabilityBadge';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Card } from '@/components/ui/card';
-import { Eye, MousePointer, ShoppingCart, CreditCard, Clock, ArrowDown } from 'lucide-react';
+import { Eye, MousePointer, ShoppingCart, CreditCard, Clock, ArrowDown, Loader2 } from 'lucide-react';
 
 const AdminAnalytics = () => {
-  const { products, analytics, viabilityScores } = useProducts();
-  const [selectedProduct, setSelectedProduct] = useState<string>(products[0]?.id || '');
+  const { data: products, isLoading: productsLoading } = useProducts();
+  const { data: analyticsData, isLoading: analyticsLoading } = useProductAnalytics();
+  const [selectedProduct, setSelectedProduct] = useState<string>('');
 
-  const product = products.find(p => p.id === selectedProduct);
-  const productAnalytics = analytics.get(selectedProduct);
-  const score = viabilityScores.get(selectedProduct);
+  const isLoading = productsLoading || analyticsLoading;
 
-  if (!product || !productAnalytics || !score) {
+  // Set initial selection
+  if (!selectedProduct && products?.length) {
+    setSelectedProduct(products[0].id);
+  }
+
+  if (isLoading) {
+    return (
+      <div className="p-8 flex justify-center items-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!products?.length) {
     return (
       <div className="p-8">
         <h1 className="text-2xl font-bold mb-4">Analytics</h1>
@@ -30,38 +39,43 @@ const AdminAnalytics = () => {
     );
   }
 
+  const product = products.find(p => p.id === selectedProduct);
+  const rawAnalytics = analyticsData?.find(a => a.product_id === selectedProduct);
+  
+  if (!product || !rawAnalytics) {
+    return (
+      <div className="p-8">
+        <h1 className="text-2xl font-bold mb-4">Analytics</h1>
+        <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+          <SelectTrigger className="w-64">
+            <SelectValue placeholder="Select product" />
+          </SelectTrigger>
+          <SelectContent>
+            {products.map(p => (
+              <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-muted-foreground mt-4">No analytics data for this product yet.</p>
+      </div>
+    );
+  }
+
+  const productAnalytics = computeAnalytics(rawAnalytics);
+  const score = calculateViabilityScore(productAnalytics);
+
   const metrics = [
-    {
-      label: 'Impressions',
-      value: productAnalytics.impressions.toLocaleString(),
-      icon: Eye,
-      color: 'text-info',
-    },
-    {
-      label: 'Clicks',
-      value: productAnalytics.clicks.toLocaleString(),
-      icon: MousePointer,
-      color: 'text-primary',
-    },
-    {
-      label: 'Add to Cart',
-      value: productAnalytics.addToCartCount.toLocaleString(),
-      icon: ShoppingCart,
-      color: 'text-score-test',
-    },
-    {
-      label: 'Checkout Intent',
-      value: productAnalytics.checkoutIntents.toLocaleString(),
-      icon: CreditCard,
-      color: 'text-score-scale',
-    },
+    { label: 'Impressions', value: productAnalytics.impressions.toLocaleString(), icon: Eye, color: 'text-info' },
+    { label: 'Clicks', value: productAnalytics.clicks.toLocaleString(), icon: MousePointer, color: 'text-primary' },
+    { label: 'Add to Cart', value: productAnalytics.addToCartCount.toLocaleString(), icon: ShoppingCart, color: 'text-score-test' },
+    { label: 'Checkout Intent', value: productAnalytics.checkoutIntents.toLocaleString(), icon: CreditCard, color: 'text-score-scale' },
   ];
 
   const funnelStages = [
     { stage: 'View', value: productAnalytics.impressions, percentage: 100 },
     { stage: 'Click', value: productAnalytics.clicks, percentage: productAnalytics.ctr },
-    { stage: 'Add to Cart', value: productAnalytics.addToCartCount, percentage: (productAnalytics.addToCartCount / productAnalytics.impressions) * 100 },
-    { stage: 'Checkout', value: productAnalytics.checkoutIntents, percentage: (productAnalytics.checkoutIntents / productAnalytics.impressions) * 100 },
+    { stage: 'Add to Cart', value: productAnalytics.addToCartCount, percentage: productAnalytics.impressions > 0 ? (productAnalytics.addToCartCount / productAnalytics.impressions) * 100 : 0 },
+    { stage: 'Checkout', value: productAnalytics.checkoutIntents, percentage: productAnalytics.impressions > 0 ? (productAnalytics.checkoutIntents / productAnalytics.impressions) * 100 : 0 },
   ];
 
   return (
@@ -77,9 +91,7 @@ const AdminAnalytics = () => {
           </SelectTrigger>
           <SelectContent>
             {products.map(p => (
-              <SelectItem key={p.id} value={p.id}>
-                {p.name}
-              </SelectItem>
+              <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -94,49 +106,21 @@ const AdminAnalytics = () => {
               <h2 className="text-2xl font-bold">{product.name}</h2>
               <ViabilityBadge recommendation={score.recommendation} />
             </div>
-            <p className="text-muted-foreground leading-relaxed max-w-2xl">
-              {score.explanation}
-            </p>
+            <p className="text-muted-foreground leading-relaxed max-w-2xl">{score.explanation}</p>
           </div>
         </div>
 
         {/* Score Breakdown */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mt-8 pt-8 border-t border-border">
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">CTR Score</p>
-            <div className="flex items-center gap-2">
-              <Progress value={score.breakdown.ctrScore} className="h-2 flex-1" />
-              <span className="text-sm font-medium">{score.breakdown.ctrScore}</span>
+          {Object.entries(score.breakdown).map(([key, value]) => (
+            <div key={key} className="space-y-2">
+              <p className="text-sm text-muted-foreground capitalize">{key.replace('Score', '')}</p>
+              <div className="flex items-center gap-2">
+                <Progress value={value} className="h-2 flex-1" />
+                <span className="text-sm font-medium">{value}</span>
+              </div>
             </div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Add to Cart</p>
-            <div className="flex items-center gap-2">
-              <Progress value={score.breakdown.addToCartScore} className="h-2 flex-1" />
-              <span className="text-sm font-medium">{score.breakdown.addToCartScore}</span>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Checkout</p>
-            <div className="flex items-center gap-2">
-              <Progress value={score.breakdown.checkoutScore} className="h-2 flex-1" />
-              <span className="text-sm font-medium">{score.breakdown.checkoutScore}</span>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Engagement</p>
-            <div className="flex items-center gap-2">
-              <Progress value={score.breakdown.engagementScore} className="h-2 flex-1" />
-              <span className="text-sm font-medium">{score.breakdown.engagementScore}</span>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Price Tolerance</p>
-            <div className="flex items-center gap-2">
-              <Progress value={score.breakdown.priceToleranceScore} className="h-2 flex-1" />
-              <span className="text-sm font-medium">{score.breakdown.priceToleranceScore}</span>
-            </div>
-          </div>
+          ))}
         </div>
       </Card>
 
@@ -167,16 +151,14 @@ const AdminAnalytics = () => {
                   </span>
                 </div>
                 <div className="relative">
-                  <div
-                    className="h-10 rounded-lg bg-primary/80 transition-all duration-500"
-                    style={{ width: `${Math.max(stage.percentage, 5)}%` }}
-                  />
+                  <div className="h-10 rounded-lg bg-primary/80 transition-all duration-500"
+                    style={{ width: `${Math.max(stage.percentage, 5)}%` }} />
                 </div>
-                {index < funnelStages.length - 1 && (
+                {index < funnelStages.length - 1 && funnelStages[index + 1].percentage > 0 && (
                   <div className="flex items-center justify-center py-2 text-muted-foreground">
                     <ArrowDown className="h-4 w-4" />
                     <span className="text-xs ml-1">
-                      -{((1 - funnelStages[index + 1].percentage / stage.percentage) * 100).toFixed(0)}%
+                      -{((1 - funnelStages[index + 1].percentage / Math.max(stage.percentage, 1)) * 100).toFixed(0)}%
                     </span>
                   </div>
                 )}
@@ -195,7 +177,7 @@ const AdminAnalytics = () => {
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">Avg. Time on Page</span>
                 </div>
-                <span className="font-semibold">{productAnalytics.avgTimeOnPage}s</span>
+                <span className="font-semibold">{productAnalytics.avgTimeOnPage.toFixed(0)}s</span>
               </div>
               <Progress value={(productAnalytics.avgTimeOnPage / 180) * 100} className="h-2" />
               <p className="text-xs text-muted-foreground">Target: 180s for high engagement</p>
@@ -207,7 +189,7 @@ const AdminAnalytics = () => {
                   <ArrowDown className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">Avg. Scroll Depth</span>
                 </div>
-                <span className="font-semibold">{productAnalytics.avgScrollDepth}%</span>
+                <span className="font-semibold">{productAnalytics.avgScrollDepth.toFixed(0)}%</span>
               </div>
               <Progress value={productAnalytics.avgScrollDepth} className="h-2" />
               <p className="text-xs text-muted-foreground">Target: 75%+ for good engagement</p>
