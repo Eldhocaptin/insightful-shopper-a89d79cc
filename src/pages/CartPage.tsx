@@ -2,24 +2,24 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
-import { useProducts } from '@/contexts/ProductContext';
+import { useTrackEvent } from '@/hooks/useTracking';
 import { Helmet } from 'react-helmet-async';
 
 const CartPage = () => {
   const { items, updateQuantity, removeFromCart, totalPrice } = useCart();
-  const { trackEvent } = useProducts();
+  const trackEvent = useTrackEvent();
 
   const handleRemove = (productId: string) => {
-    trackEvent(productId, 'removeFromCart');
+    trackEvent.mutate({ productId, eventType: 'removeFromCart' });
     removeFromCart(productId);
   };
 
   if (items.length === 0) {
     return (
       <>
-      <Helmet>
-        <title>Cart | CURATE</title>
-      </Helmet>
+        <Helmet>
+          <title>Cart | CURATE</title>
+        </Helmet>
         <div className="container py-20">
           <div className="max-w-md mx-auto text-center space-y-6">
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto">
@@ -65,7 +65,7 @@ const CartPage = () => {
               >
                 <div className="w-24 h-24 rounded-lg bg-muted overflow-hidden flex-shrink-0">
                   <img
-                    src={item.product.images[0]}
+                    src={item.product.images?.[0] || '/placeholder.svg'}
                     alt={item.product.name}
                     className="w-full h-full object-cover"
                   />
@@ -81,7 +81,7 @@ const CartPage = () => {
                         {item.product.name}
                       </Link>
                       <p className="text-sm text-muted-foreground mt-1">
-                        ${item.product.price.toFixed(2)} each
+                        ${Number(item.product.price).toFixed(2)} each
                       </p>
                     </div>
                     <Button
@@ -117,7 +117,7 @@ const CartPage = () => {
                       </Button>
                     </div>
                     <span className="font-semibold">
-                      ${(item.product.price * item.quantity).toFixed(2)}
+                      ${(Number(item.product.price) * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 </div>

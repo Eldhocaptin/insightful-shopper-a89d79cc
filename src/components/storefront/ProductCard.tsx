@@ -1,25 +1,30 @@
 import { Link } from 'react-router-dom';
 import { ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Product } from '@/types';
+import { DBProduct } from '@/hooks/useProductsDB';
 import { useCart } from '@/contexts/CartContext';
-import { useProducts } from '@/contexts/ProductContext';
+import { useTrackEvent } from '@/hooks/useTracking';
 import { useToast } from '@/hooks/use-toast';
 
 interface ProductCardProps {
-  product: Product;
+  product: DBProduct;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const { addToCart } = useCart();
-  const { trackEvent } = useProducts();
+  const trackEvent = useTrackEvent();
   const { toast } = useToast();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product);
-    trackEvent(product.id, 'addToCart');
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      images: product.images,
+    });
+    trackEvent.mutate({ productId: product.id, eventType: 'addToCart', value: 1 });
     toast({
       title: 'Added to cart',
       description: `${product.name} has been added to your cart.`,
@@ -27,12 +32,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   const handleClick = () => {
-    trackEvent(product.id, 'click');
+    trackEvent.mutate({ productId: product.id, eventType: 'click' });
   };
 
-  const discount = product.originalPrice
-    ? Math.round((1 - product.price / product.originalPrice) * 100)
+  const discount = product.original_price
+    ? Math.round((1 - product.price / product.original_price) * 100)
     : null;
+
+  const imageUrl = product.images?.[0] || '/placeholder.svg';
 
   return (
     <Link
@@ -42,7 +49,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     >
       <div className="relative aspect-square overflow-hidden rounded-xl bg-muted/50 mb-4">
         <img
-          src={product.images[0]}
+          src={imageUrl}
           alt={product.name}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -69,10 +76,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
           {product.name}
         </h3>
         <div className="flex items-center gap-2">
-          <span className="font-semibold">${product.price.toFixed(2)}</span>
-          {product.originalPrice && (
+          <span className="font-semibold">${Number(product.price).toFixed(2)}</span>
+          {product.original_price && (
             <span className="text-sm text-muted-foreground line-through">
-              ${product.originalPrice.toFixed(2)}
+              ${Number(product.original_price).toFixed(2)}
             </span>
           )}
         </div>
