@@ -8,7 +8,7 @@ const AdminSettings = () => {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">Settings</h1>
+        <h1 className="text-2xl font-bold mb-2 text-foreground">Settings</h1>
         <p className="text-muted-foreground">Configure your research platform.</p>
       </div>
 

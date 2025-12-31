@@ -82,7 +82,7 @@ const AdminAnalytics = () => {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold mb-2">Analytics</h1>
+          <h1 className="text-2xl font-bold mb-2 text-foreground">Analytics</h1>
           <p className="text-muted-foreground">Deep dive into product performance.</p>
         </div>
         <Select value={selectedProduct} onValueChange={setSelectedProduct}>
