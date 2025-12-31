@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, BarChart3, Settings, ExternalLink, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Package, BarChart3, Settings, ExternalLink, Sun, Moon, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ const AdminLayout = () => {
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/products', label: 'Products', icon: Package },
+    { href: '/admin/interest', label: 'Customer Interest', icon: Flame },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];

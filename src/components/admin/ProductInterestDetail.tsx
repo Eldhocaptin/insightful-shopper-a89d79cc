@@ -45,7 +45,7 @@ const ProductInterestDetail = ({ open, onOpenChange, score, product }: ProductIn
     { 
       name: 'Return Visits', 
       weight: 15, 
-      count: score.return_visitors,
+      count: score.return_visitors || 0,
       icon: RotateCcw,
       color: 'bg-purple-500',
     },
@@ -59,7 +59,7 @@ const ProductInterestDetail = ({ open, onOpenChange, score, product }: ProductIn
     { 
       name: 'Hover Duration', 
       weight: 10, 
-      count: score.total_hovers,
+      count: score.total_hovers || 0,
       icon: MousePointer,
       color: 'bg-orange-500',
     },
@@ -129,28 +129,28 @@ const ProductInterestDetail = ({ open, onOpenChange, score, product }: ProductIn
             <Card>
               <CardContent className="p-4 text-center">
                 <Eye className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-                <p className="text-2xl font-bold">{score.unique_sessions}</p>
+                <p className="text-2xl font-bold">{score.unique_sessions || 0}</p>
                 <p className="text-xs text-muted-foreground">Unique Visitors</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <RotateCcw className="h-6 w-6 mx-auto mb-2 text-purple-500" />
-                <p className="text-2xl font-bold">{score.return_visitors}</p>
+                <p className="text-2xl font-bold">{score.return_visitors || 0}</p>
                 <p className="text-xs text-muted-foreground">Came Back Again</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <Clock className="h-6 w-6 mx-auto mb-2 text-blue-500" />
-                <p className="text-2xl font-bold">{formatTime(score.avg_time_on_page)}</p>
+                <p className="text-2xl font-bold">{formatTime(score.avg_time_on_page || 0)}</p>
                 <p className="text-xs text-muted-foreground">Avg. View Time</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <ShoppingCart className="h-6 w-6 mx-auto mb-2 text-green-500" />
-                <p className="text-2xl font-bold">{score.total_add_to_cart}</p>
+                <p className="text-2xl font-bold">{score.total_add_to_cart || 0}</p>
                 <p className="text-xs text-muted-foreground">Added to Cart</p>
               </CardContent>
             </Card>
@@ -162,8 +162,8 @@ const ProductInterestDetail = ({ open, onOpenChange, score, product }: ProductIn
               <CardContent className="p-4">
                 <p className="text-sm font-medium mb-2">Buyer Confidence</p>
                 <div className="flex items-center gap-3">
-                  <Progress value={score.buyer_confidence} className="flex-1" />
-                  <span className="text-sm font-bold">{score.buyer_confidence}%</span>
+                  <Progress value={score.buyer_confidence || 0} className="flex-1" />
+                  <span className="text-sm font-bold">{score.buyer_confidence || 0}%</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   % of visitors who add to cart
@@ -175,10 +175,10 @@ const ProductInterestDetail = ({ open, onOpenChange, score, product }: ProductIn
                 <p className="text-sm font-medium mb-2">Hesitation Score</p>
                 <div className="flex items-center gap-3">
                   <Progress 
-                    value={score.hesitation_score} 
+                    value={score.hesitation_score || 0} 
                     className="flex-1"
                   />
-                  <span className="text-sm font-bold">{score.hesitation_score}%</span>
+                  <span className="text-sm font-bold">{score.hesitation_score || 0}%</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Hover on button without clicking

@@ -1,1 +1,4 @@
 project_id = "ncckwsyixnokpoujyimw"
+
+[functions.calculate-interest-scores]
+verify_jwt = false

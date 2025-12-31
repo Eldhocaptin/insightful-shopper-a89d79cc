@@ -23,7 +23,7 @@ const InterestInsightsPanel = ({ scores, products }: InterestInsightsPanelProps)
     const insights: Insight[] = [];
 
     // Find trending products (high return visitors)
-    const highReturnProducts = scores.filter((s) => s.return_visitors >= 3);
+    const highReturnProducts = scores.filter((s) => (s.return_visitors || 0) >= 3);
     if (highReturnProducts.length > 0) {
       const topReturning = highReturnProducts[0];
       const product = productMap.get(topReturning.product_id);
@@ -38,7 +38,7 @@ const InterestInsightsPanel = ({ scores, products }: InterestInsightsPanelProps)
     }
 
     // Find high hesitation products
-    const highHesitation = scores.filter((s) => s.hesitation_score >= 30 && s.unique_sessions >= 3);
+    const highHesitation = scores.filter((s) => (s.hesitation_score || 0) >= 30 && (s.unique_sessions || 0) >= 3);
     if (highHesitation.length > 0) {
       const topHesitation = highHesitation[0];
       const product = productMap.get(topHesitation.product_id);
@@ -53,7 +53,7 @@ const InterestInsightsPanel = ({ scores, products }: InterestInsightsPanelProps)
     }
 
     // Find products with strong buyer confidence
-    const highConfidence = scores.filter((s) => s.buyer_confidence >= 40 && s.unique_sessions >= 2);
+    const highConfidence = scores.filter((s) => (s.buyer_confidence || 0) >= 40 && (s.unique_sessions || 0) >= 2);
     if (highConfidence.length > 0) {
       const topConfidence = highConfidence[0];
       const product = productMap.get(topConfidence.product_id);
@@ -68,7 +68,7 @@ const InterestInsightsPanel = ({ scores, products }: InterestInsightsPanelProps)
     }
 
     // Find products with high time on page
-    const highEngagement = scores.filter((s) => s.avg_time_on_page >= 60000); // 1+ minute
+    const highEngagement = scores.filter((s) => (s.avg_time_on_page || 0) >= 60000); // 1+ minute
     if (highEngagement.length > 0) {
       const topEngagement = highEngagement[0];
       const product = productMap.get(topEngagement.product_id);
@@ -77,14 +77,14 @@ const InterestInsightsPanel = ({ scores, products }: InterestInsightsPanelProps)
           type: 'info',
           icon: <Eye className="h-5 w-5 text-blue-500" />,
           title: `${product.name} captures attention`,
-          description: `Visitors spend over ${Math.round(topEngagement.avg_time_on_page / 60000)} minute on average. Great product description!`,
+          description: `Visitors spend over ${Math.round((topEngagement.avg_time_on_page || 0) / 60000)} minute on average. Great product description!`,
         });
       }
     }
 
     // Find cold products with some views
     const coldWithViews = scores.filter((s) => 
-      s.interest_level === 'cold' && s.unique_sessions >= 5
+      s.interest_level === 'cold' && (s.unique_sessions || 0) >= 5
     );
     if (coldWithViews.length > 0) {
       const product = productMap.get(coldWithViews[0].product_id);
@@ -93,7 +93,7 @@ const InterestInsightsPanel = ({ scores, products }: InterestInsightsPanelProps)
           type: 'warning',
           icon: <RotateCcw className="h-5 w-5 text-amber-500" />,
           title: `${product.name} needs attention`,
-          description: `${coldWithViews[0].unique_sessions} visitors viewed but showed low interest. Consider updating images or description.`,
+          description: `${coldWithViews[0].unique_sessions || 0} visitors viewed but showed low interest. Consider updating images or description.`,
         });
       }
     }
@@ -116,7 +116,7 @@ const InterestInsightsPanel = ({ scores, products }: InterestInsightsPanelProps)
     }
 
     // Add a general tip about return visitors
-    const totalReturnVisitors = scores.reduce((sum, s) => sum + s.return_visitors, 0);
+    const totalReturnVisitors = scores.reduce((sum, s) => sum + (s.return_visitors || 0), 0);
     if (totalReturnVisitors > 0) {
       insights.push({
         type: 'tip',

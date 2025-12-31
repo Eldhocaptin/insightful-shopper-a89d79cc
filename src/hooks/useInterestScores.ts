@@ -5,14 +5,14 @@ export interface InterestScore {
   id: string;
   product_id: string;
   interest_score: number;
-  interest_level: 'hot' | 'warm' | 'cool' | 'cold';
-  buyer_confidence: number;
-  hesitation_score: number;
-  unique_sessions: number;
-  return_visitors: number;
-  avg_time_on_page: number;
-  total_hovers: number;
-  total_add_to_cart: number;
+  interest_level: string;
+  buyer_confidence: number | null;
+  hesitation_score: number | null;
+  unique_sessions: number | null;
+  return_visitors: number | null;
+  avg_time_on_page: number | null;
+  total_hovers: number | null;
+  total_add_to_cart: number | null;
   updated_at: string;
 }
 
