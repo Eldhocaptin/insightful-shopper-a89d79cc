@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="container py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="space-y-4">
-            <span className="text-lg font-semibold tracking-tight">CURATE</span>
+            <span className="text-lg font-semibold tracking-tight">Dropzy</span>
             <p className="text-sm text-muted-foreground">
               Thoughtfully selected products for modern living.
             </p>
@@ -57,7 +57,7 @@ const Footer = () => {
 
         <div className="mt-12 pt-8 border-t border-border/50">
           <p className="text-xs text-muted-foreground text-center md:text-left">
-            © {new Date().getFullYear()} CURATE. All rights reserved.
+            © {new Date().getFullYear()} Dropzy. All rights reserved.
           </p>
         </div>
       </div>

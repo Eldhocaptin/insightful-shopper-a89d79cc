@@ -30,7 +30,7 @@ const AdminLayout = () => {
       <aside className="w-64 border-r border-border bg-sidebar flex flex-col">
         <div className="p-6 border-b border-sidebar-border">
           <Link to="/admin" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-sidebar-foreground">CURATE</span>
+            <span className="text-xl font-bold text-sidebar-foreground">Dropzy</span>
             <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-medium">
               Admin
             </span>

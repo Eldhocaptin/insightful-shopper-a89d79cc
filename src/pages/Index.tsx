@@ -9,7 +9,7 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>CURATE | Thoughtfully Selected Products</title>
+        <title>Dropzy | Thoughtfully Selected Products</title>
         <meta name="description" content="Discover thoughtfully selected products for modern living. Quality essentials for your workspace and lifestyle." />
       </Helmet>
 
