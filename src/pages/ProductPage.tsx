@@ -193,7 +193,7 @@ const ProductPage = () => {
               </div>
               <div className="text-center p-4 rounded-xl bg-muted/50">
                 <p className="text-sm text-muted-foreground">Easy Returns</p>
-                <p className="text-sm font-medium">30-day policy</p>
+                <p className="text-sm font-medium">7-day policy</p>
               </div>
             </div>
           </div>
