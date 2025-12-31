@@ -61,10 +61,10 @@ const CheckoutPage = () => {
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
               <Check className="h-10 w-10 text-primary" />
             </div>
-            <h1 className="text-3xl font-semibold">Thank you!</h1>
+            <h1 className="text-3xl font-semibold">Order Received!</h1>
             <p className="text-muted-foreground">
-              Your interest has been registered. We're evaluating demand for these products
-              and will notify you when they become available.
+              This product is currently sold out. We've saved your order and will reach out 
+              to you as soon as it's back in stock. You'll be first in line!
             </p>
             <Button asChild>
               <Link to="/">Continue Browsing</Link>
@@ -146,12 +146,12 @@ const CheckoutPage = () => {
               className="w-full gradient-primary shadow-glow"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Processing...' : 'Reserve My Order'}
+              {isSubmitting ? 'Processing...' : 'Place Order'}
             </Button>
 
             <p className="text-xs text-muted-foreground text-center">
-              By clicking "Reserve My Order", you're expressing interest in these products.
-              No payment will be charged.
+              By clicking "Place Order", you're reserving these items. 
+              We'll notify you when they're available for shipping.
             </p>
           </form>
 
