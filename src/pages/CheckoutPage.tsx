@@ -95,13 +95,6 @@ const CheckoutPage = () => {
 
         <h1 className="text-3xl font-semibold mb-8">Checkout</h1>
 
-        <Alert className="mb-8 border-primary/20 bg-primary/5">
-          <AlertCircle className="h-4 w-4 text-primary" />
-          <AlertDescription className="text-sm">
-            <strong>Research Notice:</strong> This is part of a product demand research study.
-            No payment will be processed. Your information helps us understand market interest.
-          </AlertDescription>
-        </Alert>
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Checkout Form */}
