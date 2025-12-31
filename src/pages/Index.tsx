@@ -1,7 +1,7 @@
 import { useActiveProducts } from '@/hooks/useProductsDB';
 import ProductCard from '@/components/storefront/ProductCard';
 import { Helmet } from 'react-helmet-async';
-import { Loader2, ArrowRight, Truck, RotateCcw, Shield, Clock } from 'lucide-react';
+import { Loader2, ArrowRight, Truck, RotateCcw, Shield, Clock, Target, Sparkles, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import heroProductsImg from '@/assets/hero-products.jpg';
@@ -10,8 +10,8 @@ const Index = () => {
   const { data: products, isLoading, error } = useActiveProducts();
 
   const benefits = [
-    { icon: Truck, text: 'Free Shipping Over $50' },
-    { icon: RotateCcw, text: '30-Day Easy Returns' },
+    { icon: Truck, text: 'Free Shipping Over ₹500' },
+    { icon: RotateCcw, text: '7-Day Easy Returns' },
     { icon: Shield, text: 'Secure Checkout' },
     { icon: Clock, text: '24/7 Support' },
   ];
@@ -25,7 +25,7 @@ const Index = () => {
 
       {/* Announcement Bar */}
       <div className="bg-foreground text-background py-2.5 text-center text-sm font-medium">
-        <span className="animate-pulse">✨</span> NEW ARRIVALS — Free shipping on orders over $50 <span className="animate-pulse">✨</span>
+        <span className="animate-pulse">✨</span> NEW ARRIVALS — Free shipping on orders over ₹500 <span className="animate-pulse">✨</span>
       </div>
 
       {/* Hero Section */}
@@ -222,13 +222,13 @@ const Index = () => {
           
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { emoji: '🎯', title: 'Curated Selection', desc: 'Every product is hand-picked for quality, functionality, and design excellence.' },
-              { emoji: '✨', title: 'Premium Quality', desc: 'We source only the finest materials and partner with trusted manufacturers.' },
-              { emoji: '💚', title: 'Satisfaction Guaranteed', desc: "Not happy? We'll make it right with our 30-day hassle-free return policy." },
+              { icon: Target, title: 'Curated Selection', desc: 'Every product is hand-picked for quality, functionality, and design excellence.' },
+              { icon: Sparkles, title: 'Premium Quality', desc: 'We source only the finest materials and partner with trusted manufacturers.' },
+              { icon: Heart, title: 'Satisfaction Guaranteed', desc: "Not happy? We'll make it right with our 7-day hassle-free return policy." },
             ].map((item) => (
               <div key={item.title} className="bg-background rounded-2xl p-8 border border-border hover:shadow-xl transition-shadow duration-300 text-center">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center text-3xl mb-6">
-                  {item.emoji}
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+                  <item.icon className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">{item.title}</h3>
                 <p className="text-muted-foreground">{item.desc}</p>
