@@ -40,6 +40,7 @@ export const useProducts = () => {
       if (error) throw error;
       return data as DBProduct[];
     },
+    staleTime: 1000 * 30, // 30 seconds for products
   });
 };
 
@@ -73,6 +74,7 @@ export const useActiveProducts = () => {
       if (error) throw error;
       return data as DBProduct[];
     },
+    staleTime: 1000 * 30, // 30 seconds
   });
 };
 

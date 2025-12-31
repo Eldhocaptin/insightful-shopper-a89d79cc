@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useActiveProducts, DBProduct } from '@/hooks/useProductsDB';
+import { useRealtimeProducts } from '@/hooks/useRealtimeSubscriptions';
 import ProductCard from '@/components/storefront/ProductCard';
 import QuickViewModal from '@/components/storefront/QuickViewModal';
 import { Helmet } from 'react-helmet-async';
@@ -11,6 +12,9 @@ import AnimatedSection from '@/components/storefront/AnimatedSection';
 import { formatPrice } from '@/lib/utils';
 
 const Index = () => {
+  // Enable realtime updates for products
+  useRealtimeProducts();
+  
   const { data: products, isLoading, error } = useActiveProducts();
   const [quickViewProduct, setQuickViewProduct] = useState<DBProduct | null>(null);
 
