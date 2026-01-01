@@ -1,18 +1,57 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useCart } from '@/contexts/CartContext';
 import { useTrackEvent } from '@/hooks/useTracking';
 import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet-async';
-import {
-  Alert,
-  AlertDescription,
-} from '@/components/ui/alert';
 import { formatPrice } from '@/lib/utils';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+
+const checkoutSchema = z.object({
+  email: z
+    .string()
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address'),
+  firstName: z
+    .string()
+    .min(1, 'First name is required')
+    .max(50, 'First name must be less than 50 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'First name can only contain letters, spaces, hyphens, and apostrophes'),
+  lastName: z
+    .string()
+    .min(1, 'Last name is required')
+    .max(50, 'Last name must be less than 50 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Last name can only contain letters, spaces, hyphens, and apostrophes'),
+  address: z
+    .string()
+    .min(5, 'Address must be at least 5 characters')
+    .max(200, 'Address must be less than 200 characters'),
+  city: z
+    .string()
+    .min(2, 'City must be at least 2 characters')
+    .max(100, 'City must be less than 100 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'City can only contain letters, spaces, hyphens, and apostrophes'),
+  zip: z
+    .string()
+    .min(3, 'ZIP code must be at least 3 characters')
+    .max(10, 'ZIP code must be less than 10 characters')
+    .regex(/^[a-zA-Z0-9\s-]+$/, 'Please enter a valid ZIP code'),
+});
+
+type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 
 const CheckoutPage = () => {
   const { items, totalPrice, clearCart } = useCart();
@@ -21,6 +60,18 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  const form = useForm<CheckoutFormValues>({
+    resolver: zodResolver(checkoutSchema),
+    defaultValues: {
+      email: '',
+      firstName: '',
+      lastName: '',
+      address: '',
+      city: '',
+      zip: '',
+    },
+  });
 
   // Track checkout intent for all items
   useEffect(() => {
@@ -34,8 +85,7 @@ const CheckoutPage = () => {
     return null;
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: CheckoutFormValues) => {
     setIsSubmitting(true);
 
     // Simulate submission
@@ -96,65 +146,115 @@ const CheckoutPage = () => {
 
         <h1 className="text-3xl font-semibold mb-8">Checkout</h1>
 
-
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Checkout Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Contact Information</h2>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  required
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold">Contact Information</h2>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="your@email.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-            </div>
 
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Shipping Address</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" required />
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold">Shipping Address</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" required />
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input placeholder="123 Main Street, Apt 4B" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input placeholder="New York" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="zip"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>ZIP Code</FormLabel>
+                        <FormControl>
+                          <Input placeholder="10001" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Input id="address" required />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
-                  <Input id="city" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="zip">ZIP Code</Label>
-                  <Input id="zip" required />
-                </div>
-              </div>
-            </div>
 
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full gradient-primary shadow-glow"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Processing...' : 'Place Order'}
-            </Button>
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full gradient-primary shadow-glow"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Processing...' : 'Place Order'}
+              </Button>
 
-            <p className="text-xs text-muted-foreground text-center">
-              By clicking "Place Order", you're reserving these items. 
-              We'll notify you when they're available for shipping.
-            </p>
-          </form>
+              <p className="text-xs text-muted-foreground text-center">
+                By clicking "Place Order", you're reserving these items. 
+                We'll notify you when they're available for shipping.
+              </p>
+            </form>
+          </Form>
 
           {/* Order Summary */}
           <div>
