@@ -4,9 +4,10 @@ interface AnimatedSectionProps {
   children: ReactNode;
   className?: string;
   delay?: number;
+  id?: string;
 }
 
-const AnimatedSection = ({ children, className = '', delay = 0 }: AnimatedSectionProps) => {
+const AnimatedSection = ({ children, className = '', delay = 0, id }: AnimatedSectionProps) => {
   const ref = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -31,6 +32,7 @@ const AnimatedSection = ({ children, className = '', delay = 0 }: AnimatedSectio
   return (
     <section
       ref={ref}
+      id={id}
       className={`transition-all duration-700 ease-out ${
         isVisible
           ? 'opacity-100 translate-y-0'
