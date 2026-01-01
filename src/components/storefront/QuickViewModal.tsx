@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { Minus, Plus, ShoppingBag, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -12,6 +12,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { formatPrice } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
 interface QuickViewModalProps {
   product: DBProduct | null;
@@ -21,9 +22,11 @@ interface QuickViewModalProps {
 
 const QuickViewModal = ({ product, open, onOpenChange }: QuickViewModalProps) => {
   const [quantity, setQuantity] = useState(1);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const { addToCart } = useCart();
   const { toast } = useToast();
 
+  // Reset when product changes
   if (!product) return null;
 
   const handleAddToCart = () => {
@@ -39,33 +42,116 @@ const QuickViewModal = ({ product, open, onOpenChange }: QuickViewModalProps) =>
     });
     onOpenChange(false);
     setQuantity(1);
+    setCurrentMediaIndex(0);
   };
 
   const discount = product.original_price
     ? Math.round((1 - product.price / product.original_price) * 100)
     : null;
 
-  const imageUrl = product.images?.[0] || '/placeholder.svg';
+  // Combine images and videos
+  const images = product.images || [];
+  const videos = (product as any).videos || [];
+  const allMedia = [
+    ...images.map((url: string) => ({ type: 'image' as const, url })),
+    ...videos.map((url: string) => ({ type: 'video' as const, url })),
+  ];
+  
+  if (allMedia.length === 0) {
+    allMedia.push({ type: 'image', url: '/placeholder.svg' });
+  }
+
+  const currentMedia = allMedia[currentMediaIndex] || allMedia[0];
+  const hasMultipleMedia = allMedia.length > 1;
+
+  const handlePrevious = () => {
+    setCurrentMediaIndex((prev) => (prev === 0 ? allMedia.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentMediaIndex((prev) => (prev === allMedia.length - 1 ? 0 : prev + 1));
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(open) => { 
+      onOpenChange(open); 
+      if (!open) {
+        setCurrentMediaIndex(0);
+        setQuantity(1);
+      }
+    }}>
       <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden bg-background">
         <DialogHeader className="sr-only">
           <DialogTitle>{product.name}</DialogTitle>
         </DialogHeader>
         
         <div className="grid md:grid-cols-2 gap-0">
-          {/* Product Image */}
+          {/* Product Media */}
           <div className="relative aspect-square bg-muted">
-            <img
-              src={imageUrl}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
+            {currentMedia.type === 'image' ? (
+              <img
+                src={currentMedia.url}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <video
+                src={currentMedia.url}
+                className="w-full h-full object-cover"
+                controls
+                playsInline
+                preload="metadata"
+              />
+            )}
+            
             {discount && (
-              <span className="absolute top-4 left-4 bg-primary text-primary-foreground text-sm font-medium px-3 py-1.5 rounded-full">
+              <span className="absolute top-4 left-4 bg-primary text-primary-foreground text-sm font-medium px-3 py-1.5 rounded-full z-10">
                 -{discount}%
               </span>
+            )}
+
+            {/* Navigation Arrows */}
+            {hasMultipleMedia && (
+              <>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background shadow-lg"
+                  onClick={handlePrevious}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background shadow-lg"
+                  onClick={handleNext}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+
+            {/* Thumbnail dots */}
+            {hasMultipleMedia && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                {allMedia.map((media, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentMediaIndex(index)}
+                    className={cn(
+                      "w-2 h-2 rounded-full transition-all",
+                      currentMediaIndex === index
+                        ? "bg-primary w-4"
+                        : "bg-white/60 hover:bg-white/80"
+                    )}
+                  >
+                    {media.type === 'video' && currentMediaIndex !== index && (
+                      <Play className="h-1.5 w-1.5 text-transparent" />
+                    )}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 

@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
-import { ArrowLeft, Minus, Plus, ShoppingBag, Loader2 } from 'lucide-react';
+import { ArrowLeft, Minus, Plus, ShoppingBag, Loader2, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { useProduct } from '@/hooks/useProductsDB';
@@ -9,6 +9,7 @@ import { useProductPageTracking as useInterestPageTracking } from '@/hooks/useIn
 import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet-async';
 import { formatPrice } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,7 +17,9 @@ const ProductPage = () => {
   const { addToCart } = useCart();
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const addToCartButtonRef = useRef<HTMLButtonElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   
   // Original tracking
   const { trackImpression, trackAddToCart } = useProductPageTracking(id);
@@ -38,6 +41,11 @@ const ProductPage = () => {
     }
   }, [product, trackImpression]);
 
+  // Reset media index when product changes
+  useEffect(() => {
+    setCurrentMediaIndex(0);
+  }, [id]);
+
   if (isLoading) {
     return (
       <div className="container py-20 flex justify-center">
@@ -57,6 +65,37 @@ const ProductPage = () => {
     );
   }
 
+  // Combine images and videos into a single media array
+  const images = product.images || [];
+  const videos = (product as any).videos || [];
+  const allMedia = [
+    ...images.map((url: string) => ({ type: 'image' as const, url })),
+    ...videos.map((url: string) => ({ type: 'video' as const, url })),
+  ];
+  
+  // Fallback if no media
+  if (allMedia.length === 0) {
+    allMedia.push({ type: 'image', url: '/placeholder.svg' });
+  }
+
+  const currentMedia = allMedia[currentMediaIndex];
+  const hasMultipleMedia = allMedia.length > 1;
+
+  const handlePrevious = () => {
+    setCurrentMediaIndex((prev) => (prev === 0 ? allMedia.length - 1 : prev - 1));
+    trackImageView();
+  };
+
+  const handleNext = () => {
+    setCurrentMediaIndex((prev) => (prev === allMedia.length - 1 ? 0 : prev + 1));
+    trackImageView();
+  };
+
+  const handleThumbnailClick = (index: number) => {
+    setCurrentMediaIndex(index);
+    trackImageView();
+  };
+
   const handleAddToCart = () => {
     addToCart({
       id: product.id,
@@ -66,7 +105,7 @@ const ProductPage = () => {
     }, quantity);
     trackAddToCart(quantity);
     trackInterestAddToCart();
-    onAddToCartHoverEnd(true); // Mark as clicked
+    onAddToCartHoverEnd(true);
     toast({
       title: 'Added to cart',
       description: `${quantity}x ${product.name} has been added to your cart.`,
@@ -81,8 +120,6 @@ const ProductPage = () => {
   const discount = product.original_price
     ? Math.round((1 - product.price / product.original_price) * 100)
     : null;
-
-  const imageUrl = product.images?.[0] || '/placeholder.svg';
 
   return (
     <>
@@ -101,23 +138,101 @@ const ProductPage = () => {
         </Link>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Product Image */}
-          <div className="animate-fade-in">
-            <div 
-              className="relative aspect-square overflow-hidden rounded-2xl bg-muted/50 cursor-zoom-in"
-              onClick={trackImageView}
-            >
-              <img
-                src={imageUrl}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
+          {/* Product Media Gallery */}
+          <div className="animate-fade-in space-y-4">
+            {/* Main Media Display */}
+            <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted/50">
+              {currentMedia.type === 'image' ? (
+                <img
+                  src={currentMedia.url}
+                  alt={product.name}
+                  className="h-full w-full object-cover cursor-zoom-in"
+                  onClick={trackImageView}
+                />
+              ) : (
+                <video
+                  ref={videoRef}
+                  src={currentMedia.url}
+                  className="h-full w-full object-cover"
+                  controls
+                  playsInline
+                  preload="metadata"
+                />
+              )}
+              
               {discount && (
-                <span className="absolute top-4 left-4 bg-primary text-primary-foreground text-sm font-medium px-3 py-1.5 rounded-full">
+                <span className="absolute top-4 left-4 bg-primary text-primary-foreground text-sm font-medium px-3 py-1.5 rounded-full z-10">
                   -{discount}%
                 </span>
               )}
+
+              {/* Navigation Arrows */}
+              {hasMultipleMedia && (
+                <>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background shadow-lg"
+                    onClick={handlePrevious}
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background shadow-lg"
+                    onClick={handleNext}
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                </>
+              )}
+
+              {/* Media Counter */}
+              {hasMultipleMedia && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-medium">
+                  {currentMediaIndex + 1} / {allMedia.length}
+                </div>
+              )}
             </div>
+
+            {/* Thumbnail Gallery */}
+            {hasMultipleMedia && (
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {allMedia.map((media, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleThumbnailClick(index)}
+                    className={cn(
+                      "relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all",
+                      currentMediaIndex === index
+                        ? "border-primary ring-2 ring-primary/20"
+                        : "border-transparent hover:border-muted-foreground/30"
+                    )}
+                  >
+                    {media.type === 'image' ? (
+                      <img
+                        src={media.url}
+                        alt={`${product.name} thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="relative w-full h-full bg-muted">
+                        <video
+                          src={media.url}
+                          className="w-full h-full object-cover"
+                          muted
+                          preload="metadata"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                          <Play className="h-6 w-6 text-white fill-white" />
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Info */}

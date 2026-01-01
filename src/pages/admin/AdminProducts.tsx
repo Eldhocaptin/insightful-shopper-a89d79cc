@@ -1,12 +1,13 @@
 import { useState, useRef } from 'react';
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, useToggleProductActive } from '@/hooks/useProductsDB';
-import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, X, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, X, Loader2, Video, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useImageUpload } from '@/hooks/useImageUpload';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
@@ -27,14 +28,17 @@ const AdminProducts = () => {
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
-    name: '', description: '', price: '', original_price: '', category: '', images: [] as string[], is_active: true,
+    name: '', description: '', price: '', original_price: '', category: '', 
+    images: [] as string[], videos: [] as string[], is_active: true,
   });
 
   const resetForm = () => {
-    setFormData({ name: '', description: '', price: '', original_price: '', category: '', images: [], is_active: true });
+    setFormData({ name: '', description: '', price: '', original_price: '', category: '', images: [], videos: [], is_active: true });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,8 +53,27 @@ const AdminProducts = () => {
     }
   };
 
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    
+    setIsUploadingVideo(true);
+    for (const file of Array.from(files)) {
+      // Use the same upload function but for videos
+      const url = await uploadImage(file);
+      if (url) {
+        setFormData(prev => ({ ...prev, videos: [...prev.videos, url] }));
+      }
+    }
+    setIsUploadingVideo(false);
+  };
+
   const removeImage = (index: number) => {
     setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
+  };
+
+  const removeVideo = (index: number) => {
+    setFormData(prev => ({ ...prev, videos: prev.videos.filter((_, i) => i !== index) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,6 +85,7 @@ const AdminProducts = () => {
       original_price: formData.original_price ? parseFloat(formData.original_price) : null,
       category: formData.category,
       images: formData.images.length > 0 ? formData.images : ['/placeholder.svg'],
+      videos: formData.videos,
       is_active: formData.is_active,
     };
 
@@ -81,7 +105,7 @@ const AdminProducts = () => {
       setFormData({
         name: product.name, description: product.description, price: product.price.toString(),
         original_price: product.original_price?.toString() || '', category: product.category,
-        images: product.images || [], is_active: product.is_active,
+        images: product.images || [], videos: (product as any).videos || [], is_active: product.is_active,
       });
       setEditingProduct(productId);
     }
@@ -89,24 +113,69 @@ const AdminProducts = () => {
 
   const ProductForm = () => (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label>Product Images</Label>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {formData.images.map((img, i) => (
-            <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted">
-              <img src={img} alt="" className="w-full h-full object-cover" />
-              <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5">
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          ))}
-          <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading}
-            className="w-20 h-20 rounded-lg border-2 border-dashed border-border flex items-center justify-center hover:border-primary transition-colors">
-            {isUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5 text-muted-foreground" />}
-          </button>
-        </div>
-        <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
-      </div>
+      <Tabs defaultValue="images" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="images" className="flex items-center gap-2">
+            <ImageIcon className="h-4 w-4" />
+            Images ({formData.images.length})
+          </TabsTrigger>
+          <TabsTrigger value="videos" className="flex items-center gap-2">
+            <Video className="h-4 w-4" />
+            Videos ({formData.videos.length})
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="images" className="space-y-2 mt-4">
+          <Label>Product Images</Label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {formData.images.map((img, i) => (
+              <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted">
+                <img src={img} alt="" className="w-full h-full object-cover" />
+                <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5">
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={() => imageInputRef.current?.click()} disabled={isUploading}
+              className="w-20 h-20 rounded-lg border-2 border-dashed border-border flex items-center justify-center hover:border-primary transition-colors">
+              {isUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5 text-muted-foreground" />}
+            </button>
+          </div>
+          <input ref={imageInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
+          <p className="text-xs text-muted-foreground">Upload multiple images. First image will be the main display.</p>
+        </TabsContent>
+        
+        <TabsContent value="videos" className="space-y-2 mt-4">
+          <Label>Product Videos</Label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {formData.videos.map((video, i) => (
+              <div key={i} className="relative w-32 h-20 rounded-lg overflow-hidden bg-muted">
+                <video src={video} className="w-full h-full object-cover" muted preload="metadata" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                  <Video className="h-6 w-6 text-white" />
+                </div>
+                <button type="button" onClick={() => removeVideo(i)} className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5">
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={() => videoInputRef.current?.click()} disabled={isUploadingVideo}
+              className="w-32 h-20 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 hover:border-primary transition-colors">
+              {isUploadingVideo ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <>
+                  <Video className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Add Video</span>
+                </>
+              )}
+            </button>
+          </div>
+          <input ref={videoInputRef} type="file" accept="video/*" multiple onChange={handleVideoUpload} className="hidden" />
+          <p className="text-xs text-muted-foreground">Upload product demo videos (MP4, WebM). Max 50MB per video.</p>
+        </TabsContent>
+      </Tabs>
+
       <div className="space-y-2">
         <Label htmlFor="name">Product Name</Label>
         <Input id="name" value={formData.name} onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))} required />
@@ -134,7 +203,7 @@ const AdminProducts = () => {
         <Label htmlFor="is_active">Active</Label>
       </div>
       <DialogFooter>
-        <Button type="submit" disabled={createProduct.isPending || updateProduct.isPending}>
+        <Button type="submit" disabled={createProduct.isPending || updateProduct.isPending || isUploading || isUploadingVideo}>
           {(createProduct.isPending || updateProduct.isPending) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
           {editingProduct ? 'Update' : 'Add'} Product
         </Button>
@@ -172,6 +241,7 @@ const AdminProducts = () => {
               <TableHead>Product</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
+              <TableHead>Media</TableHead>
               <TableHead className="text-center">Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -194,6 +264,18 @@ const AdminProducts = () => {
                 <TableCell>
                   <span className="font-medium">₹{Number(product.price).toFixed(2)}</span>
                   {product.original_price && <span className="text-xs text-muted-foreground ml-2 line-through">₹{Number(product.original_price).toFixed(2)}</span>}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <ImageIcon className="h-3 w-3" />
+                      {product.images?.length || 0}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Video className="h-3 w-3" />
+                      {(product as any).videos?.length || 0}
+                    </span>
+                  </div>
                 </TableCell>
                 <TableCell className="text-center">
                   <Button variant="ghost" size="sm" onClick={() => toggleActive.mutate({ id: product.id, is_active: !product.is_active })}
@@ -232,7 +314,7 @@ const AdminProducts = () => {
               </TableRow>
             ))}
             {products?.length === 0 && (
-              <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No products yet. Add your first product to start testing.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No products yet. Add your first product to start testing.</TableCell></TableRow>
             )}
           </TableBody>
         </Table>
