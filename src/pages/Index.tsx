@@ -191,8 +191,8 @@ const Index = () => {
       )}
 
       {/* Featured Products */}
-      <AnimatedSection className="py-20 md:py-28" delay={200}>
-        <div className="container" id="products">
+      <AnimatedSection className="py-20 md:py-28" delay={200} id="products">
+        <div className="container">
           {/* Section Header */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
             <div>
