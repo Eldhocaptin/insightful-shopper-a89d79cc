@@ -69,35 +69,27 @@ export const useInterestTracking = () => {
   return trackEvent;
 };
 
-// Update session profile with viewed products
+// Update session profile with viewed products using upsert
+// This avoids needing SELECT access for security
 const updateSessionProfile = async (productId: string) => {
   const sessionId = getSessionId();
+  const viewedProducts = getViewedProducts();
   
-  // Get current profile
-  const { data: existing } = await supabase
+  // Build the products array from local storage (since we can't read from DB)
+  const productsViewed = viewedProducts.includes(productId) 
+    ? viewedProducts 
+    : [...viewedProducts, productId];
+  
+  // Use upsert to insert or update without needing SELECT permission
+  await supabase
     .from('session_interest_profiles')
-    .select('*')
-    .eq('session_id', sessionId)
-    .single();
-
-  if (existing) {
-    const productsViewed = existing.products_viewed || [];
-    if (!productsViewed.includes(productId)) {
-      productsViewed.push(productId);
-      await supabase
-        .from('session_interest_profiles')
-        .update({ products_viewed: productsViewed })
-        .eq('session_id', sessionId);
-    }
-  } else {
-    await supabase
-      .from('session_interest_profiles')
-      .insert({
-        session_id: sessionId,
-        products_viewed: [productId],
-        is_return_visitor: getViewedProducts().length > 0,
-      });
-  }
+    .upsert({
+      session_id: sessionId,
+      products_viewed: productsViewed,
+      is_return_visitor: viewedProducts.length > 0,
+    }, {
+      onConflict: 'session_id',
+    });
 };
 
 // Hook for tracking product card interactions
