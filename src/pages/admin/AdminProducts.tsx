@@ -111,7 +111,7 @@ const AdminProducts = () => {
     }
   };
 
-  const ProductForm = () => (
+  const productFormContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Tabs defaultValue="images" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
@@ -229,7 +229,7 @@ const AdminProducts = () => {
               <DialogTitle>Add New Product</DialogTitle>
               <DialogDescription>Add a new product to test market demand.</DialogDescription>
             </DialogHeader>
-            <ProductForm />
+            {productFormContent}
           </DialogContent>
         </Dialog>
       </div>
@@ -291,7 +291,7 @@ const AdminProducts = () => {
                       </DialogTrigger>
                       <DialogContent className="max-h-[90vh] overflow-y-auto">
                         <DialogHeader><DialogTitle>Edit Product</DialogTitle></DialogHeader>
-                        <ProductForm />
+                        {productFormContent}
                       </DialogContent>
                     </Dialog>
                     <AlertDialog>
